@@ -23,11 +23,44 @@ body,
 .sidebar {
   width: 200px;
   height: 100%;
-  padding: 32px 24px;
+  padding: 24px;
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: 24px;
   border-right: 1px solid #000;
+
+  &__tabs {
+    display: flex;
+    border: 1px solid #000;
+  }
+
+  &__tab {
+    flex: 1;
+    padding: 10px 0;
+    background: transparent;
+    color: #000;
+    border: none;
+    font-size: 10px;
+    font-family: "Inter", sans-serif;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:first-child {
+      border-right: 1px solid #000;
+    }
+
+    &--active {
+      background: #000;
+      color: #fff;
+    }
+
+    &:hover:not(&--active) {
+      background: #f0f0f0;
+    }
+  }
 
   &__title {
     font-size: 10px;
