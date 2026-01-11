@@ -10,11 +10,136 @@ body,
   width: 100%;
   height: 100%;
   overflow: hidden;
+  font-family: "Inter", sans-serif;
+  background: #fff;
 }
 
 .app {
+  display: flex;
   width: 100%;
   height: 100%;
+}
+
+.sidebar {
+  width: 200px;
+  height: 100%;
+  padding: 32px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  border-right: 1px solid #000;
+
+  &__title {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #000;
+  }
+
+  &__control {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  &__label {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #000;
+  }
+
+  &__slider {
+    width: 100%;
+    height: 1px;
+    appearance: none;
+    background: #000;
+    cursor: pointer;
+    margin: 8px 0;
+
+    &::-webkit-slider-thumb {
+      appearance: none;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #000;
+      cursor: pointer;
+    }
+  }
+
+  &__select {
+    width: 100%;
+    padding: 8px 0;
+    border: none;
+    border-bottom: 1px solid #000;
+    font-size: 11px;
+    font-family: "Inter", sans-serif;
+    font-weight: 400;
+    letter-spacing: 0.02em;
+    background: transparent;
+    cursor: pointer;
+    border-radius: 0;
+
+    &:focus {
+      outline: none;
+    }
+  }
+
+  &__color {
+    width: 32px;
+    height: 32px;
+    border: 1px solid #000;
+    cursor: pointer;
+    padding: 0;
+    background: none;
+
+    &::-webkit-color-swatch-wrapper {
+      padding: 0;
+    }
+
+    &::-webkit-color-swatch {
+      border: none;
+    }
+  }
+
+  &__actions {
+    margin-top: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  &__button {
+    padding: 10px 0;
+    background: transparent;
+    color: #000;
+    border: 1px solid #000;
+    font-size: 10px;
+    font-family: "Inter", sans-serif;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover {
+      background: #000;
+      color: #fff;
+    }
+  }
+}
+
+.canvas-area {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.canvas-container {
+  border: 1px solid #000;
 
   canvas {
     display: block;
