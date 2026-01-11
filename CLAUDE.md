@@ -1,61 +1,47 @@
 # Project Guidelines
 
-This is a React.js app with SCSS styles.
+A React.js drawing app using p5.js and p5.brush for natural brush strokes.
 
 ## File Structure
 
-- All React components should be placed in `src/App.jsx`
-- All styles should be placed in `src/App.scss`
+- `src/App.jsx` - Main React component with p5.js sketch
+- `src/App.scss` - All styles using BEM naming
 
-This single-file approach is intentional for rapid prototyping. Refactor into multiple files as the prototype grows.
+Single-file approach for rapid prototyping. Refactor as needed.
+
+## Key Libraries
+
+- **p5.js** (v1.11.x) - Canvas rendering in WEBGL mode
+- **p5.brush** - Natural brush stroke library
+
+Note: p5.brush requires p5 v1.x (not v2.x) due to API changes.
+
+## Color Palette
+
+```scss
+--color-ohmg-black: #1b1b1b;
+--color-ohmg-blue: #94dbff;
+--color-ohmg-red: #cc4722;
+--color-ohmg-yellow: #ffbf35;
+--color-ohmg-lilac: #b0afed;
+--color-ohmg-pink: #ff94c2;
+```
 
 ## CSS/SCSS Conventions
 
-- Use BEM (Block Element Modifier) naming methodology for CSS classes
-- Follow the pattern: `.block__element--modifier`
-- Use SCSS nesting with `&` for better organization
-- Leverage CSS custom properties for theming
+- Use BEM naming: `.block__element--modifier`
+- Use SCSS nesting with `&`
+- Use CSS custom properties for colors
 
-### BEM Example
+## p5.js Notes
 
-```scss
-.card {
-  background: var(--color-bg);
-  padding: var(--spacing-2x);
-
-  &__header {
-    border-bottom: 1px solid var(--color-text-light);
-  }
-
-  &__title {
-    font-size: var(--font-size-xl);
-
-    &--large {
-      font-size: calc(var(--font-size-xl) * 1.5);
-    }
-  }
-}
-```
-
-```jsx
-<div className="card">
-  <div className="card__header">
-    <h2 className="card__title card__title--large">Title</h2>
-  </div>
-</div>
-```
-
-## CSS Custom Properties
-
-Available variables defined in `src/App.scss`:
+- Canvas runs in WEBGL mode (required by p5.brush)
+- Origin is at center; translate by -width/2, -height/2 for top-left coords
+- Use `brush.instance(p)` to register with p5 instance mode
+- Call `brush.load()` after `createCanvas()`
+- Draw operations should happen in `draw()` loop, not event handlers
 
 ## Environment Variables
 
-- Copy `.env.example` to `.env.local` for local configuration
-- All Vite environment variables must be prefixed with `VITE_`
-- Access in code: `import.meta.env.VITE_API_URL`
-
-Example:
-```jsx
-const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
-```
+- Copy `.env.example` to `.env.local`
+- Prefix with `VITE_` for client access

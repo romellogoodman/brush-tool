@@ -1,8 +1,15 @@
-# Prototype Boilerplate
+# Brush Tool
 
-A minimal React boilerplate for rapid prototyping with Claude Code.
+A drawing application built with React and p5.brush for natural brush strokes.
 
-React 19 + Vite + SCSS with BEM conventions.
+## Features
+
+- **Brush Mode**: Freehand drawing with natural brush textures
+- **Shape Mode**: Place circles, squares, triangles, and lines drawn with brush strokes
+- **Brush Types**: charcoal, 2B, HB, pen, rotring, marker, spray
+- **Color Palette**: 6 preset colors (blue, red, yellow, lilac, pink, black)
+- **Controls**: Size, stroke weight, rotation (shapes), opacity
+- **Export**: Save drawings as PNG
 
 ## Quick Start
 
@@ -10,6 +17,12 @@ React 19 + Vite + SCSS with BEM conventions.
 npm install
 npm run dev
 ```
+
+## Tech Stack
+
+- React 19 + Vite
+- p5.js + p5.brush for natural brush rendering
+- SCSS with BEM conventions
 
 ## Available Scripts
 
@@ -23,10 +36,6 @@ npm run preview      # Preview production build
 npm run clean        # Remove build artifacts
 ```
 
-## Environment Variables
-
-Copy `.env.example` to `.env.local` and configure as needed. All variables must be prefixed with `VITE_`.
-
 ## Project Guidelines
 
-See [CLAUDE.md](CLAUDE.md) for file structure conventions, CSS/SCSS guidelines, and other project-specific instructions.
+See [CLAUDE.md](CLAUDE.md) for development conventions.
