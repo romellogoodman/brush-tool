@@ -13,7 +13,16 @@ const BRUSH_TYPES = [
   "spray",
 ];
 
-const SHAPE_TYPES = ["circle", "square", "triangle", "line"];
+const MODES = ["brush", "circle", "square", "triangle", "line"];
+
+const COLORS = [
+  { name: "blue", value: "#94dbff" },
+  { name: "red", value: "#cc4722" },
+  { name: "yellow", value: "#ffbf35" },
+  { name: "lilac", value: "#b0afed" },
+  { name: "pink", value: "#ff94c2" },
+  { name: "black", value: "#1b1b1b" },
+];
 
 function App() {
   const containerRef = useRef(null);
@@ -23,8 +32,7 @@ function App() {
     brushType: "charcoal",
     brushSize: 1,
     opacity: 100,
-    color: "#000000",
-    shapeType: "circle",
+    color: "#1b1b1b",
     shapeSize: 50,
     shapeRotation: 0,
   });
@@ -33,8 +41,7 @@ function App() {
   const [brushType, setBrushType] = useState("charcoal");
   const [brushSize, setBrushSize] = useState(1);
   const [opacity, setOpacity] = useState(100);
-  const [color, setColor] = useState("#000000");
-  const [shapeType, setShapeType] = useState("circle");
+  const [color, setColor] = useState("#1b1b1b");
   const [shapeSize, setShapeSize] = useState(50);
   const [shapeRotation, setShapeRotation] = useState(0);
 
@@ -45,11 +52,10 @@ function App() {
       brushSize,
       opacity,
       color,
-      shapeType,
       shapeSize,
       shapeRotation,
     };
-  }, [mode, brushType, brushSize, opacity, color, shapeType, shapeSize, shapeRotation]);
+  }, [mode, brushType, brushSize, opacity, color, shapeSize, shapeRotation]);
 
   useEffect(() => {
     let pendingShape = null;
@@ -77,36 +83,66 @@ function App() {
           brush.line(p.pmouseX, p.pmouseY, p.mouseX, p.mouseY);
         }
 
-        // Draw pending shape
+        // Draw pending shape using brush
         if (pendingShape) {
-          const { x, y, r, g, b, opacity, size, rotation, type } = pendingShape;
+          const { x, y, r, g, b, opacity, size, rotation, type, brushType, brushSize } = pendingShape;
 
-          p.push();
-          p.translate(x, y);
-          p.rotate(p.radians(rotation));
+          brush.set(brushType, [r, g, b, opacity * 2.55], brushSize);
 
-          p.fill(r, g, b, opacity * 2.55);
-          p.noStroke();
+          const rad = p.radians(rotation);
+          const cos = Math.cos(rad);
+          const sin = Math.sin(rad);
+
+          // Rotate point around origin
+          const rotatePoint = (px, py) => ({
+            x: x + px * cos - py * sin,
+            y: y + px * sin + py * cos,
+          });
 
           switch (type) {
-            case "circle":
-              p.ellipse(0, 0, size, size);
+            case "circle": {
+              const segments = 32;
+              for (let i = 0; i < segments; i++) {
+                const a1 = (i / segments) * Math.PI * 2;
+                const a2 = ((i + 1) / segments) * Math.PI * 2;
+                const p1 = rotatePoint(Math.cos(a1) * size / 2, Math.sin(a1) * size / 2);
+                const p2 = rotatePoint(Math.cos(a2) * size / 2, Math.sin(a2) * size / 2);
+                brush.line(p1.x, p1.y, p2.x, p2.y);
+              }
               break;
-            case "square":
-              p.rectMode(p.CENTER);
-              p.rect(0, 0, size, size);
+            }
+            case "square": {
+              const half = size / 2;
+              const corners = [
+                rotatePoint(-half, -half),
+                rotatePoint(half, -half),
+                rotatePoint(half, half),
+                rotatePoint(-half, half),
+              ];
+              for (let i = 0; i < 4; i++) {
+                brush.line(corners[i].x, corners[i].y, corners[(i + 1) % 4].x, corners[(i + 1) % 4].y);
+              }
               break;
-            case "triangle":
-              p.triangle(0, -size / 2, -size / 2, size / 2, size / 2, size / 2);
+            }
+            case "triangle": {
+              const vertices = [
+                rotatePoint(0, -size / 2),
+                rotatePoint(-size / 2, size / 2),
+                rotatePoint(size / 2, size / 2),
+              ];
+              for (let i = 0; i < 3; i++) {
+                brush.line(vertices[i].x, vertices[i].y, vertices[(i + 1) % 3].x, vertices[(i + 1) % 3].y);
+              }
               break;
-            case "line":
-              p.stroke(r, g, b, opacity * 2.55);
-              p.strokeWeight(2);
-              p.line(-size / 2, 0, size / 2, 0);
+            }
+            case "line": {
+              const p1 = rotatePoint(-size / 2, 0);
+              const p2 = rotatePoint(size / 2, 0);
+              brush.line(p1.x, p1.y, p2.x, p2.y);
               break;
+            }
           }
 
-          p.pop();
           pendingShape = null;
         }
       };
@@ -115,9 +151,7 @@ function App() {
         const settings = settingsRef.current;
         const inCanvas = p.mouseX >= 0 && p.mouseX <= p.width && p.mouseY >= 0 && p.mouseY <= p.height;
 
-        if (settings.mode === "shape" && inCanvas) {
-          console.log("Drawing shape:", settings.shapeType, "at", p.mouseX, p.mouseY);
-
+        if (settings.mode !== "brush" && inCanvas) {
           pendingShape = {
             x: p.mouseX,
             y: p.mouseY,
@@ -127,7 +161,9 @@ function App() {
             opacity: settings.opacity,
             size: settings.shapeSize,
             rotation: settings.shapeRotation,
-            type: settings.shapeType,
+            type: settings.mode,
+            brushType: settings.brushType,
+            brushSize: settings.brushSize,
           };
         }
       };
@@ -155,70 +191,51 @@ function App() {
   return (
     <div className="app">
       <aside className="sidebar">
-        <div className="sidebar__tabs">
-          <button
-            className={`sidebar__tab ${mode === "brush" ? "sidebar__tab--active" : ""}`}
-            onClick={() => setMode("brush")}
+        <div className="sidebar__control">
+          <label className="sidebar__label">Mode</label>
+          <select
+            className="sidebar__select"
+            value={mode}
+            onChange={(e) => setMode(e.target.value)}
           >
-            Brush
-          </button>
-          <button
-            className={`sidebar__tab ${mode === "shape" ? "sidebar__tab--active" : ""}`}
-            onClick={() => setMode("shape")}
-          >
-            Shape
-          </button>
+            {MODES.map((m) => (
+              <option key={m} value={m}>
+                {m}
+              </option>
+            ))}
+          </select>
         </div>
 
-        {mode === "brush" && (
+        <div className="sidebar__control">
+          <label className="sidebar__label">Brush</label>
+          <select
+            className="sidebar__select"
+            value={brushType}
+            onChange={(e) => setBrushType(e.target.value)}
+          >
+            {BRUSH_TYPES.map((type) => (
+              <option key={type} value={type}>
+                {type}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="sidebar__control">
+          <label className="sidebar__label">{mode === "brush" ? "Size" : "Stroke"}</label>
+          <input
+            type="range"
+            className="sidebar__slider"
+            min="0.1"
+            max="5"
+            step="0.1"
+            value={brushSize}
+            onChange={(e) => setBrushSize(parseFloat(e.target.value))}
+          />
+        </div>
+
+        {mode !== "brush" && (
           <>
-            <div className="sidebar__control">
-              <label className="sidebar__label">Type</label>
-              <select
-                className="sidebar__select"
-                value={brushType}
-                onChange={(e) => setBrushType(e.target.value)}
-              >
-                {BRUSH_TYPES.map((type) => (
-                  <option key={type} value={type}>
-                    {type}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="sidebar__control">
-              <label className="sidebar__label">Size</label>
-              <input
-                type="range"
-                className="sidebar__slider"
-                min="0.1"
-                max="5"
-                step="0.1"
-                value={brushSize}
-                onChange={(e) => setBrushSize(parseFloat(e.target.value))}
-              />
-            </div>
-          </>
-        )}
-
-        {mode === "shape" && (
-          <>
-            <div className="sidebar__control">
-              <label className="sidebar__label">Shape</label>
-              <select
-                className="sidebar__select"
-                value={shapeType}
-                onChange={(e) => setShapeType(e.target.value)}
-              >
-                {SHAPE_TYPES.map((type) => (
-                  <option key={type} value={type}>
-                    {type}
-                  </option>
-                ))}
-              </select>
-            </div>
-
             <div className="sidebar__control">
               <label className="sidebar__label">Size</label>
               <input
@@ -262,12 +279,17 @@ function App() {
 
         <div className="sidebar__control">
           <label className="sidebar__label">Color</label>
-          <input
-            type="color"
-            className="sidebar__color"
-            value={color}
-            onChange={(e) => setColor(e.target.value)}
-          />
+          <div className="sidebar__colors">
+            {COLORS.map((c) => (
+              <button
+                key={c.name}
+                className={`sidebar__color-swatch ${color === c.value ? "sidebar__color-swatch--active" : ""}`}
+                style={{ background: c.value }}
+                onClick={() => setColor(c.value)}
+                aria-label={c.name}
+              />
+            ))}
+          </div>
         </div>
 
         <div className="sidebar__actions">
