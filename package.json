@@ -1,5 +1,5 @@
 {
-  "name": "romello-goodman-prototype-boilerplate",
+  "name": "romello-goodman-brush-tool",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "p5": "^2.2.3",
-    "p5.brush": "^1.1.4",
+    "p5.brush": "2.1.9-beta",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
     "react-p5": "^1.4.1"

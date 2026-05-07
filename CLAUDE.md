@@ -11,10 +11,10 @@ Single-file approach for rapid prototyping. Refactor as needed.
 
 ## Key Libraries
 
-- **p5.js** (v1.11.x) - Canvas rendering in WEBGL mode
-- **p5.brush** - Natural brush stroke library
+- **p5.js** (v2.x) - Canvas rendering in WEBGL mode
+- **p5.brush** (2.x beta) - Natural brush stroke library
 
-Note: p5.brush requires p5 v1.x (not v2.x) due to API changes.
+Note: p5.brush 2.x requires p5 v2.x. The 1.x line of p5.brush required p5 v1.x; the 2.x beta switched peer dep to `^2.2` and p5.brush auto-initializes after `createCanvas(..., WEBGL)` — no more `brush.load()` call.
 
 ## Color Palette
 
@@ -38,7 +38,7 @@ Note: p5.brush requires p5 v1.x (not v2.x) due to API changes.
 - Canvas runs in WEBGL mode (required by p5.brush)
 - Origin is at center; translate by -width/2, -height/2 for top-left coords
 - Use `brush.instance(p)` to register with p5 instance mode
-- Call `brush.load()` after `createCanvas()`
+- p5.brush auto-initializes after `createCanvas(w, h, p.WEBGL)` — no `brush.load()` needed
 - Draw operations should happen in `draw()` loop, not event handlers
 
 ## Environment Variables
