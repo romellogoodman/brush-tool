@@ -66,7 +66,6 @@ function App() {
       p.setup = () => {
         const canvas = p.createCanvas(800, 600, p.WEBGL);
         canvas.parent(containerRef.current);
-        brush.load();
         p.background(255);
       };
 
