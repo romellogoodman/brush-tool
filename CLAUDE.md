@@ -11,10 +11,10 @@ Single-file approach for rapid prototyping. Refactor as needed.
 
 ## Key Libraries
 
-- **p5.js** (v2.x) - Canvas rendering in WEBGL mode
-- **p5.brush** (2.x beta) - Natural brush stroke library
+- **p5.js** (v1.11.x) - Canvas rendering in WEBGL mode
+- **p5.brush** (v1.1.x) - Natural brush stroke library
 
-Note: p5.brush 2.x requires p5 v2.x. The 1.x line of p5.brush required p5 v1.x; the 2.x beta switched peer dep to `^2.2` and p5.brush auto-initializes after `createCanvas(..., WEBGL)` — no more `brush.load()` call.
+Note: p5.brush v1 requires p5 v1.x. Do not bump either past v1 without migrating to p5.brush 2.x (which changes the init API — no more `brush.load()`).
 
 ## Color Palette
 
@@ -38,8 +38,9 @@ Note: p5.brush 2.x requires p5 v2.x. The 1.x line of p5.brush required p5 v1.x; 
 - Canvas runs in WEBGL mode (required by p5.brush)
 - Origin is at center; translate by -width/2, -height/2 for top-left coords
 - Use `brush.instance(p)` to register with p5 instance mode
-- p5.brush auto-initializes after `createCanvas(w, h, p.WEBGL)` — no `brush.load()` needed
+- Call `brush.load()` after `createCanvas()`
 - Draw operations should happen in `draw()` loop, not event handlers
+- `<StrictMode>` is omitted in `main.jsx`: its double-mount in dev conflicts with p5's imperative lifecycle and crashes `brush.load()` on remount
 
 ## Environment Variables
 

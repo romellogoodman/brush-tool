@@ -14,8 +14,8 @@
     "clean": "rm -rf dist node_modules package-lock.json"
   },
   "dependencies": {
-    "p5": "^2.2.3",
-    "p5.brush": "2.1.9-beta",
+    "p5": "^1.11.2",
+    "p5.brush": "^1.1.4",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
     "react-p5": "^1.4.1"
