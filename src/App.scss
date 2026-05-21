@@ -141,6 +141,39 @@ body,
       color: #fff;
     }
   }
+
+  &__toggles {
+    display: flex;
+    gap: 16px;
+  }
+
+  &__toggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-ohmg-black);
+    cursor: pointer;
+
+    input {
+      accent-color: var(--color-ohmg-black);
+      cursor: pointer;
+    }
+  }
+
+  &__hint {
+    font-size: 9px;
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-ohmg-black);
+    opacity: 0.5;
+    text-align: center;
+    margin-top: 4px;
+  }
 }
 
 .canvas-area {
@@ -151,6 +184,7 @@ body,
 }
 
 .canvas-container {
+  position: relative;
   border: 1px solid var(--color-ohmg-black);
 
   canvas {
