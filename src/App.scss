@@ -191,6 +191,8 @@ body,
 .canvas-container {
   position: relative;
   border: 1px solid var(--color-ohmg-black);
+  // Let pointer/stylus events draw instead of scrolling/zooming the page.
+  touch-action: none;
 
   canvas {
     display: block;
