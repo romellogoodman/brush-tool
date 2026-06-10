@@ -447,6 +447,13 @@ function App() {
                 aria-label={c.name}
               />
             ))}
+            <input
+              type="color"
+              className="sidebar__color-input"
+              value={color}
+              onChange={(e) => setColor(e.target.value)}
+              aria-label="Custom color"
+            />
           </div>
         </div>
 
