@@ -199,8 +199,10 @@ function App() {
           return;
         }
 
-        // Free-drawing brush mode.
-        if (p.mouseIsPressed && settings.mode === "brush") {
+        // Free-drawing brush mode. Gate on strokeActiveRef (set only when the
+        // press began inside the canvas) so a drag starting off-canvas can't
+        // paint un-undoable strokes.
+        if (strokeActiveRef.current && settings.mode === "brush") {
           // Eraser paints over the canvas with the white background color.
           const [r, g, b] = settings.eraser
             ? [255, 255, 255]
