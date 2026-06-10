@@ -55,6 +55,7 @@ function App() {
   const [field, setField] = useState("none");
   const [shapeFill, setShapeFill] = useState(false);
   const [shapeHatch, setShapeHatch] = useState(false);
+  const [eraser, setEraser] = useState(false);
   const [cursor, setCursor] = useState({ x: 0, y: 0, inside: false });
 
   // Keep a ref mirror of settings for p5's imperative draw loop.
@@ -70,6 +71,7 @@ function App() {
       field,
       shapeFill,
       shapeHatch,
+      eraser,
     };
   }, [
     mode,
@@ -82,6 +84,7 @@ function App() {
     field,
     shapeFill,
     shapeHatch,
+    eraser,
   ]);
 
   useEffect(() => {
@@ -198,7 +201,10 @@ function App() {
 
         // Free-drawing brush mode.
         if (p.mouseIsPressed && settings.mode === "brush") {
-          const [r, g, b] = hexToRgb(settings.color);
+          // Eraser paints over the canvas with the white background color.
+          const [r, g, b] = settings.eraser
+            ? [255, 255, 255]
+            : hexToRgb(settings.color);
           // Pen / touch get pressure sensitivity; mouse always uses configured size
           // because `PointerEvent.pressure` is locked at 0.5 for mice.
           const effectiveSize =
@@ -456,6 +462,19 @@ function App() {
             />
           </div>
         </div>
+
+        {!isShapeMode && (
+          <div className="sidebar__control">
+            <label className="sidebar__toggle">
+              <input
+                type="checkbox"
+                checked={eraser}
+                onChange={(e) => setEraser(e.target.checked)}
+              />
+              <span>Eraser</span>
+            </label>
+          </div>
+        )}
 
         <div className="sidebar__actions">
           <button className="sidebar__button" onClick={handleClear}>
