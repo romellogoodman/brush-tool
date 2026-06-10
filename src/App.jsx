@@ -41,6 +41,7 @@ function App() {
   const pointerTypeRef = useRef("mouse");
   const pendingShapeRef = useRef(null);
   const pendingUndoRef = useRef(false);
+  const pendingRedoRef = useRef(false);
   const strokeActiveRef = useRef(false);
   const historyRef = useRef(createHistory(MAX_UNDO));
 
@@ -183,6 +184,18 @@ function App() {
           return;
         }
 
+        // Redo: re-apply the next snapshot from the redo stack.
+        if (pendingRedoRef.current) {
+          pendingRedoRef.current = false;
+          const snap = historyRef.current.redo();
+          if (snap) {
+            p.background(255);
+            p.imageMode(p.CORNER);
+            p.image(snap, 0, 0, p.width, p.height);
+          }
+          return;
+        }
+
         // Free-drawing brush mode.
         if (p.mouseIsPressed && settings.mode === "brush") {
           const [r, g, b] = hexToRgb(settings.color);
@@ -250,11 +263,15 @@ function App() {
 
     p5InstanceRef.current = new p5(sketch);
 
-    // Cmd/Ctrl+Z to undo.
+    // Cmd/Ctrl+Z to undo, Cmd/Ctrl+Shift+Z to redo.
     const onKey = (e) => {
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "z" && !e.shiftKey) {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "z") {
         e.preventDefault();
-        pendingUndoRef.current = true;
+        if (e.shiftKey) {
+          pendingRedoRef.current = true;
+        } else {
+          pendingUndoRef.current = true;
+        }
       }
     };
     window.addEventListener("keydown", onKey);
@@ -440,7 +457,7 @@ function App() {
           <button className="sidebar__button" onClick={handleExport}>
             Export
           </button>
-          <p className="sidebar__hint">⌘Z to undo</p>
+          <p className="sidebar__hint">⌘Z undo · ⌘⇧Z redo</p>
         </div>
       </aside>
 
