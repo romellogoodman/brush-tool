@@ -42,7 +42,4 @@ Note: p5.brush v1 requires p5 v1.x. Do not bump either past v1 without migrating
 - Draw operations should happen in `draw()` loop, not event handlers
 - `<StrictMode>` is omitted in `main.jsx`: its double-mount in dev conflicts with p5's imperative lifecycle and crashes `brush.load()` on remount
 
-## Environment Variables
-
-- Copy `.env.example` to `.env.local`
-- Prefix with `VITE_` for client access
+This is a fully client-side app with no environment variables or backend.
