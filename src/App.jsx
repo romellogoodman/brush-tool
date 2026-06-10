@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import p5 from "p5";
 import * as brush from "p5.brush";
+import { hexToRgb, rotateAround } from "./lib/draw.js";
+import { createHistory } from "./lib/history.js";
 import "./App.scss";
 
 const BRUSH_TYPES = [
@@ -31,19 +33,6 @@ const CANVAS_W = 800;
 const CANVAS_H = 600;
 const MAX_UNDO = 20;
 
-const hexToRgb = (hex) => [
-  parseInt(hex.slice(1, 3), 16),
-  parseInt(hex.slice(3, 5), 16),
-  parseInt(hex.slice(5, 7), 16),
-];
-
-// Rotate (px, py) around origin by `rad` radians, then translate to (cx, cy).
-const rotateAround = (cx, cy, rad) => {
-  const cos = Math.cos(rad);
-  const sin = Math.sin(rad);
-  return (px, py) => [cx + px * cos - py * sin, cy + px * sin + py * cos];
-};
-
 function App() {
   const containerRef = useRef(null);
   const p5InstanceRef = useRef(null);
@@ -52,7 +41,8 @@ function App() {
   const pointerTypeRef = useRef("mouse");
   const pendingShapeRef = useRef(null);
   const pendingUndoRef = useRef(false);
-  const undoStackRef = useRef([]);
+  const strokeActiveRef = useRef(false);
+  const historyRef = useRef(createHistory(MAX_UNDO));
 
   const [mode, setMode] = useState("brush");
   const [brushType, setBrushType] = useState("charcoal");
@@ -94,11 +84,10 @@ function App() {
   ]);
 
   useEffect(() => {
+    // Snapshot the canvas *after* an action commits, so the history top always
+    // matches what's on screen. Undo then steps back exactly one action.
     const pushSnapshot = (p) => {
-      undoStackRef.current.push(p.get());
-      if (undoStackRef.current.length > MAX_UNDO) {
-        undoStackRef.current.shift();
-      }
+      historyRef.current.push(p.get());
     };
 
     const drawShape = (p, shape) => {
@@ -153,7 +142,7 @@ function App() {
         brush.load();
         p.background(255);
         // Baseline snapshot so first undo returns to blank.
-        undoStackRef.current.push(p.get());
+        historyRef.current.push(p.get());
 
         // PointerEvents carry pressure; p5's mouse events do not.
         const el = canvas.elt;
@@ -182,13 +171,11 @@ function App() {
           brush.noField();
         }
 
-        // Undo: pop snapshot and blit it back.
+        // Undo: restore the previous committed snapshot and blit it back.
         if (pendingUndoRef.current) {
           pendingUndoRef.current = false;
-          if (undoStackRef.current.length > 1) {
-            undoStackRef.current.pop();
-            const snap =
-              undoStackRef.current[undoStackRef.current.length - 1];
+          const snap = historyRef.current.undo();
+          if (snap) {
             p.background(255);
             p.imageMode(p.CORNER);
             p.image(snap, 0, 0, p.width, p.height);
@@ -232,8 +219,9 @@ function App() {
         if (!inCanvas) return;
 
         if (settings.mode === "brush") {
-          // Snapshot the canvas before the stroke so undo returns to pre-stroke state.
-          pushSnapshot(p);
+          // Defer the snapshot to mouseReleased so it captures the completed
+          // stroke (post-action) and avoids a GPU readback stall mid-stroke.
+          strokeActiveRef.current = true;
         } else {
           pendingShapeRef.current = {
             x: p.mouseX,
@@ -248,6 +236,14 @@ function App() {
             fill: settings.shapeFill,
             hatch: settings.shapeHatch,
           };
+        }
+      };
+
+      p.mouseReleased = () => {
+        // Commit one undo step per completed brush stroke.
+        if (strokeActiveRef.current) {
+          strokeActiveRef.current = false;
+          pushSnapshot(p);
         }
       };
     };
@@ -272,12 +268,9 @@ function App() {
   const handleClear = () => {
     const p = p5InstanceRef.current;
     if (!p) return;
-    // Snapshot so undo can restore.
-    undoStackRef.current.push(p.get());
-    if (undoStackRef.current.length > MAX_UNDO) {
-      undoStackRef.current.shift();
-    }
     p.background(255);
+    // Snapshot the now-blank canvas (post-action) so undo restores the drawing.
+    historyRef.current.push(p.get());
   };
 
   const handleExport = () => {
